@@ -1,0 +1,35 @@
+import requests
+
+# Replace with your access token and video ID
+ACCESS_TOKEN = 'your_access_token'
+VIDEO_ID = 'your_video_id'
+
+# Facebook Graph API endpoint
+url = f'https://graph.facebook.com/v12.0/{VIDEO_ID}'
+
+# Parameters for the request
+params = {
+    'access_token': ACCESS_TOKEN,
+    'fields': 'source'  # Request the video source URL
+}
+
+# Make the request to the Graph API
+response = requests.get(url, params=params)
+data = response.json()
+
+# Check if the video source URL is available
+if 'source' in data:
+    video_url = data['source']
+    print(f"Video URL: {video_url}")
+
+    # Download the video
+    video_response = requests.get(video_url, stream=True)
+    if video_response.status_code == 200:
+        with open('facebook_video.mp4', 'wb') as file:
+            for chunk in video_response.iter_content(chunk_size=1024):
+                file.write(chunk)
+        print("Video downloaded successfully!")
+    else:
+        print("Failed to download the video.")
+else:
+    print("Video source URL not found.")
